@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
- * NanoClaw - Single File Version
+ * Vision - Single File Version
  *
  * A minimal Telegram-to-Claude bridge.
  * One chat, one assistant, no features beyond responding to messages.
  *
  * Usage:
  *   npm install grammy @anthropic-ai/sdk
- *   TELEGRAM_BOT_TOKEN=xxx tsx nanoclaw.ts
+ *   export TELEGRAM_BOT_TOKEN=xxx 
+ *   npm run dev
  */
 
 import { Bot, Context } from 'grammy';
@@ -253,7 +254,7 @@ async function getAgentResponse(userMessage: string, chatId: number, ctx: Contex
 // ========== MAIN ==========
 
 async function main(): Promise<void> {
-  console.log('NanoClaw - Single File Version\n');
+  console.log('VISION\n');
 
   if (!process.env.ANTHROPIC_API_KEY) {
     console.error('Error: ANTHROPIC_API_KEY not set');
