@@ -1,6 +1,11 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# etc
 node_modules/
 dist/
 history.jsonl
 *.log
-.env
 pnpm-lock.yaml
