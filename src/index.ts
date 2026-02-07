@@ -4,16 +4,26 @@
 // Start message with $ to run shell commands, e.g. $date
 const USE_CLAUDE = (process.env.USE_CLAUDE ?? 'true').toLowerCase() === 'true';
 const ALLOWED_CHAT_IDS = [Number(process.env.MY_TG_CHAT_ID)];
+const CLAUDE_BIN = process.env.CLAUDE_BIN?.trim() || 'claude';
+const CODEX_BIN = process.env.CODEX_BIN?.trim() || 'codex';
+const ULTRON_NAME = process.env.ULTRON_NAME?.trim() || 'ULTRON';
 const os = require('os');
 const { exec } = require('child_process') as typeof import('child_process');
 import { Bot, Context } from 'grammy';
 
+function shellQuote(value: string): string {
+  return JSON.stringify(value);
+}
+
+const AGENT_BIN = USE_CLAUDE ? shellQuote(CLAUDE_BIN) : shellQuote(CODEX_BIN);
 const RESET_CMD: string = USE_CLAUDE
-  ? `claude -p '(NOTE: Resetting session. Say "Session reset." and exit.)'`
-  : `codex exec '(NOTE: Resetting session. Say "Session reset." and exit.)'`;
+  ? `${AGENT_BIN} -p '(NOTE: Resetting session. Say "Session reset." and exit.)'`
+  : `${AGENT_BIN} exec '(NOTE: Resetting session. Say "Session reset." and exit.)'`;
 const EXEC_CMD: string = USE_CLAUDE
-  ? `claude --dangerously-skip-permissions --continue -p`
-  : `codex --yolo exec resume --last`;
+  ? `${AGENT_BIN} --dangerously-skip-permissions --continue -p`
+  : `${AGENT_BIN} --yolo exec resume --last`;
+
+console.log(process.env);
 
 function stripAnsi(str: string): string {
   return str.replace(/\x1b[^a-zA-Z]*[a-zA-Z]|\x1b\].*?(?:\x07|\x1b\\)/g, '');
@@ -38,8 +48,8 @@ function executeCommand(cmd: string, callback: (output: string) => void): void {
 
 function runAgent(prompt: string, callback: (output: string) => void): void {
   let cmd = USE_CLAUDE
-    ? `claude -p ${JSON.stringify(prompt)}`
-    : `codex exec ${JSON.stringify(prompt)}`;
+    ? `${AGENT_BIN} -p ${JSON.stringify(prompt)}`
+    : `${AGENT_BIN} exec ${JSON.stringify(prompt)}`;
   
   if (USE_CLAUDE) {
     cmd = `script -q -c ${JSON.stringify(cmd)} /dev/null`;
@@ -96,7 +106,13 @@ async function main(): Promise<void> {
     });
   });
 
-  await bot.start();
+  await bot.start({
+    onStart: () => {
+      for (const chatId of ALLOWED_CHAT_IDS) {
+        bot.api.sendMessage(chatId, `${ULTRON_NAME} ONLINE!`).catch(console.error);
+      }
+    },
+  });
 }
 
 main().catch(err => {
