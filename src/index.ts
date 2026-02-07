@@ -2,7 +2,7 @@
 // USAGE: Just talk normally to Claude/Codex
 // say reset to reset chat
 // Start message with $ to run shell commands, e.g. $date
-const USE_CLAUDE = true; // false -> use Codex
+const USE_CLAUDE = (process.env.USE_CLAUDE ?? 'true').toLowerCase() === 'true';
 const ALLOWED_CHAT_IDS = [Number(process.env.MY_TG_CHAT_ID)];
 const os = require('os');
 const { exec } = require('child_process') as typeof import('child_process');
